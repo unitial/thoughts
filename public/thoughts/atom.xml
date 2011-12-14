@@ -1,16 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[My Octopress Blog]]></title>
+  <title><![CDATA[Thoughts Tracker]]></title>
   <link href="http://unitial.github.com/thoughts/atom.xml" rel="self"/>
   <link href="http://unitial.github.com/thoughts/"/>
-  <updated>2011-12-14T14:09:56+08:00</updated>
+  <updated>2011-12-14T14:26:31+08:00</updated>
   <id>http://unitial.github.com/thoughts/</id>
   <author>
-    <name><![CDATA[Your Name]]></name>
+    <name><![CDATA[unitial]]></name>
     
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[new-post]]></title>
+    <link href="http://unitial.github.com/thoughts/blog/2011/12/14/new-post/"/>
+    <updated>2011-12-14T14:24:00+08:00</updated>
+    <id>http://unitial.github.com/thoughts/blog/2011/12/14/new-post</id>
+    <content type="html"><![CDATA[<h3>Title</h3>
+
+<p>This is a test</p>
+]]></content>
+  </entry>
   
 </feed>
