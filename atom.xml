@@ -4,7 +4,7 @@
   <title><![CDATA[My Octopress Blog]]></title>
   <link href="http://unitial.github.com/thoughts/atom.xml" rel="self"/>
   <link href="http://unitial.github.com/thoughts/"/>
-  <updated>2011-12-14T14:03:57+08:00</updated>
+  <updated>2011-12-21T13:50:29+08:00</updated>
   <id>http://unitial.github.com/thoughts/</id>
   <author>
     <name><![CDATA[Your Name]]></name>
@@ -12,5 +12,39 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[test2]]></title>
+    <link href="http://unitial.github.com/thoughts/blog/2011/12/21/test2/"/>
+    <updated>2011-12-21T13:44:00+08:00</updated>
+    <id>http://unitial.github.com/thoughts/blog/2011/12/21/test2</id>
+    <content type="html"><![CDATA[<p>This is another test.</p>
+
+<ul>
+<li>1</li>
+<li>2</li>
+<li>3</li>
+</ul>
+
+
+<!-- more -->
+
+
+<p>This is code testing:</p>
+
+<figure class='code'><figcaption><span>hello.c</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;OOPS~</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);;</span>
+</span><span class='line'>    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+]]></content>
+  </entry>
   
 </feed>
