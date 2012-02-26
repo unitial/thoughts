@@ -4,7 +4,7 @@
   <title><![CDATA[Random Thoughts]]></title>
   <link href="http://unitial.github.com/thoughts/atom.xml" rel="self"/>
   <link href="http://unitial.github.com/thoughts/"/>
-  <updated>2012-02-26T10:36:26+08:00</updated>
+  <updated>2012-02-26T10:38:39+08:00</updated>
   <id>http://unitial.github.com/thoughts/</id>
   <author>
     <name><![CDATA[unitial]]></name>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Test3]]></title>
-    <link href="http://unitial.github.com/thoughts/blog/2012/02/26/new-post/"/>
+    <link href="http://unitial.github.com/thoughts/blog/2012/02/26/test3/"/>
     <updated>2012-02-26T10:34:00+08:00</updated>
-    <id>http://unitial.github.com/thoughts/blog/2012/02/26/new-post</id>
+    <id>http://unitial.github.com/thoughts/blog/2012/02/26/test3</id>
     <content type="html"><![CDATA[<p>This is another test3.</p>
 ]]></content>
   </entry>
