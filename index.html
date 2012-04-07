@@ -7,7 +7,7 @@
     <meta name="author" content="unitial">
 
     
-    <meta name="description" content="Xv6 Booting xv6启动流程分析 启动后运行的第一段代码： entry.S1
+    <meta name="description" content="Xv6 Booting Process xv6启动后运行的第一段代码： bootasm.S1
 2
 3
 4
@@ -33,7 +33,17 @@
 24
 25
 26
-# Entering xv6 on boot processor, &hellip;">
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37 &hellip;">
     
     <meta name="viewport" content="width=device-width; initial-scale=1; maximum-scale=1">
 
@@ -75,11 +85,180 @@
 
 
     <article class="post">
-    <h1 class="title"><a href="/thoughts/blog/2012/04/07/xv6-booting/">Xv6 Booting</a></h1>
+    <h1 class="title"><a href="/thoughts/blog/2012/04/07/xv6-booting/">Xv6 Booting Process</a></h1>
     <div class="entry">
-        <h3>xv6启动流程分析</h3>
+        <p>xv6启动后运行的第一段代码：</p>
 
-<p>启动后运行的第一段代码：</p>
+<figure class='code'><figcaption><span>bootasm.S</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cp"># Start the first CPU: switch to 32-bit protected mode, jump into C.</span>
+</span><span class='line'><span class="cp"># The BIOS loads this code from the first sector of the hard disk into</span>
+</span><span class='line'><span class="cp"># memory at physical address 0x7c00 and starts executing in real mode</span>
+</span><span class='line'><span class="cp"># with %cs=0 %ip=7c00.</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">.</span><span class="n">code16</span>                       <span class="err">#</span> <span class="n">Assemble</span> <span class="k">for</span> <span class="mi">16</span><span class="o">-</span><span class="n">bit</span> <span class="n">mode</span>
+</span><span class='line'><span class="p">.</span><span class="n">globl</span> <span class="n">start</span>
+</span><span class='line'><span class="nl">start:</span>
+</span><span class='line'>  <span class="n">cli</span>                         <span class="err">#</span> <span class="n">BIOS</span> <span class="n">enabled</span> <span class="n">interrupts</span><span class="p">;</span> <span class="n">disable</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="cp"># Zero data segment registers DS, ES, and SS.</span>
+</span><span class='line'>  <span class="n">xorw</span>    <span class="o">%</span><span class="n">ax</span><span class="p">,</span><span class="o">%</span><span class="n">ax</span>             <span class="err">#</span> <span class="n">Set</span> <span class="o">%</span><span class="n">ax</span> <span class="n">to</span> <span class="n">zero</span>
+</span><span class='line'>  <span class="n">movw</span>    <span class="o">%</span><span class="n">ax</span><span class="p">,</span><span class="o">%</span><span class="n">ds</span>             <span class="err">#</span> <span class="o">-&gt;</span> <span class="n">Data</span> <span class="n">Segment</span>
+</span><span class='line'>  <span class="n">movw</span>    <span class="o">%</span><span class="n">ax</span><span class="p">,</span><span class="o">%</span><span class="n">es</span>             <span class="err">#</span> <span class="o">-&gt;</span> <span class="n">Extra</span> <span class="n">Segment</span>
+</span><span class='line'>  <span class="n">movw</span>    <span class="o">%</span><span class="n">ax</span><span class="p">,</span><span class="o">%</span><span class="n">ss</span>             <span class="err">#</span> <span class="o">-&gt;</span> <span class="n">Stack</span> <span class="n">Segment</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="cp"># Physical address line A20 is tied to zero so that the first PCs </span>
+</span><span class='line'>  <span class="cp"># with 2 MB would run software that assumed 1 MB.  Undo that.</span>
+</span><span class='line'><span class="n">seta20</span><span class="mf">.1</span><span class="o">:</span>
+</span><span class='line'>  <span class="n">inb</span>     <span class="err">$</span><span class="mh">0x64</span><span class="p">,</span><span class="o">%</span><span class="n">al</span>               <span class="err">#</span> <span class="n">Wait</span> <span class="k">for</span> <span class="n">not</span> <span class="n">busy</span>
+</span><span class='line'>  <span class="n">testb</span>   <span class="err">$</span><span class="mh">0x2</span><span class="p">,</span><span class="o">%</span><span class="n">al</span>
+</span><span class='line'>  <span class="n">jnz</span>     <span class="n">seta20</span><span class="mf">.1</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">movb</span>    <span class="err">$</span><span class="mh">0xd1</span><span class="p">,</span><span class="o">%</span><span class="n">al</span>               <span class="err">#</span> <span class="mh">0xd1</span> <span class="o">-&gt;</span> <span class="n">port</span> <span class="mh">0x64</span>
+</span><span class='line'>  <span class="n">outb</span>    <span class="o">%</span><span class="n">al</span><span class="p">,</span><span class="err">$</span><span class="mh">0x64</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">seta20</span><span class="mf">.2</span><span class="o">:</span>
+</span><span class='line'>  <span class="n">inb</span>     <span class="err">$</span><span class="mh">0x64</span><span class="p">,</span><span class="o">%</span><span class="n">al</span>               <span class="err">#</span> <span class="n">Wait</span> <span class="k">for</span> <span class="n">not</span> <span class="n">busy</span>
+</span><span class='line'>  <span class="n">testb</span>   <span class="err">$</span><span class="mh">0x2</span><span class="p">,</span><span class="o">%</span><span class="n">al</span>
+</span><span class='line'>  <span class="n">jnz</span>     <span class="n">seta20</span><span class="mf">.2</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">movb</span>    <span class="err">$</span><span class="mh">0xdf</span><span class="p">,</span><span class="o">%</span><span class="n">al</span>               <span class="err">#</span> <span class="mh">0xdf</span> <span class="o">-&gt;</span> <span class="n">port</span> <span class="mh">0x60</span>
+</span><span class='line'>  <span class="n">outb</span>    <span class="o">%</span><span class="n">al</span><span class="p">,</span><span class="err">$</span><span class="mh">0x60</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="cp"># Switch from real to protected mode.  Use a bootstrap GDT that makes</span>
+</span><span class='line'>  <span class="cp"># virtual addresses map directly to physical addresses so that the</span>
+</span><span class='line'>  <span class="cp"># effective memory map doesn&#39;t change during the transition.</span>
+</span><span class='line'>  <span class="n">lgdt</span>    <span class="n">gdtdesc</span>
+</span><span class='line'>  <span class="n">movl</span>    <span class="o">%</span><span class="n">cr0</span><span class="p">,</span> <span class="o">%</span><span class="n">eax</span>
+</span><span class='line'>  <span class="n">orl</span>     <span class="err">$</span><span class="n">CR0_PE</span><span class="p">,</span> <span class="o">%</span><span class="n">eax</span>
+</span><span class='line'>  <span class="n">movl</span>    <span class="o">%</span><span class="n">eax</span><span class="p">,</span> <span class="o">%</span><span class="n">cr0</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">//PAGEBREAK!</span>
+</span><span class='line'>  <span class="cp"># Complete transition to 32-bit protected mode by using long jmp</span>
+</span><span class='line'>  <span class="cp"># to reload %cs and %eip.  The segment descriptors are set up with no</span>
+</span><span class='line'>  <span class="cp"># translation, so that the mapping is still the identity mapping.</span>
+</span><span class='line'>  <span class="n">ljmp</span>    <span class="err">$</span><span class="p">(</span><span class="n">SEG_KCODE</span><span class="o">&lt;&lt;</span><span class="mi">3</span><span class="p">),</span> <span class="err">$</span><span class="n">start32</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">.</span><span class="n">code32</span>  <span class="err">#</span> <span class="n">Tell</span> <span class="n">assembler</span> <span class="n">to</span> <span class="n">generate</span> <span class="mi">32</span><span class="o">-</span><span class="n">bit</span> <span class="n">code</span> <span class="n">now</span><span class="p">.</span>
+</span><span class='line'><span class="nl">start32:</span>
+</span><span class='line'>  <span class="cp"># Set up the protected-mode data segment registers</span>
+</span><span class='line'>  <span class="n">movw</span>    <span class="err">$</span><span class="p">(</span><span class="n">SEG_KDATA</span><span class="o">&lt;&lt;</span><span class="mi">3</span><span class="p">),</span> <span class="o">%</span><span class="n">ax</span>    <span class="err">#</span> <span class="n">Our</span> <span class="n">data</span> <span class="n">segment</span> <span class="n">selector</span>
+</span><span class='line'>  <span class="n">movw</span>    <span class="o">%</span><span class="n">ax</span><span class="p">,</span> <span class="o">%</span><span class="n">ds</span>                <span class="err">#</span> <span class="o">-&gt;</span> <span class="n">DS</span><span class="o">:</span> <span class="n">Data</span> <span class="n">Segment</span>
+</span><span class='line'>  <span class="n">movw</span>    <span class="o">%</span><span class="n">ax</span><span class="p">,</span> <span class="o">%</span><span class="n">es</span>                <span class="err">#</span> <span class="o">-&gt;</span> <span class="n">ES</span><span class="o">:</span> <span class="n">Extra</span> <span class="n">Segment</span>
+</span><span class='line'>  <span class="n">movw</span>    <span class="o">%</span><span class="n">ax</span><span class="p">,</span> <span class="o">%</span><span class="n">ss</span>                <span class="err">#</span> <span class="o">-&gt;</span> <span class="n">SS</span><span class="o">:</span> <span class="n">Stack</span> <span class="n">Segment</span>
+</span><span class='line'>  <span class="n">movw</span>    <span class="err">$</span><span class="mi">0</span><span class="p">,</span> <span class="o">%</span><span class="n">ax</span>                 <span class="err">#</span> <span class="n">Zero</span> <span class="n">segments</span> <span class="n">not</span> <span class="n">ready</span> <span class="k">for</span> <span class="n">use</span>
+</span><span class='line'>  <span class="n">movw</span>    <span class="o">%</span><span class="n">ax</span><span class="p">,</span> <span class="o">%</span><span class="n">fs</span>                <span class="err">#</span> <span class="o">-&gt;</span> <span class="n">FS</span>
+</span><span class='line'>  <span class="n">movw</span>    <span class="o">%</span><span class="n">ax</span><span class="p">,</span> <span class="o">%</span><span class="n">gs</span>                <span class="err">#</span> <span class="o">-&gt;</span> <span class="n">GS</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="cp"># Set up the stack pointer and call into C.</span>
+</span><span class='line'>  <span class="n">movl</span>    <span class="err">$</span><span class="n">start</span><span class="p">,</span> <span class="o">%</span><span class="n">esp</span>
+</span><span class='line'>  <span class="n">call</span>    <span class="n">bootmain</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="cp"># If bootmain returns (it shouldn&#39;t), trigger a Bochs</span>
+</span><span class='line'>  <span class="cp"># breakpoint if running under Bochs, then loop.</span>
+</span><span class='line'>  <span class="n">movw</span>    <span class="err">$</span><span class="mh">0x8a00</span><span class="p">,</span> <span class="o">%</span><span class="n">ax</span>            <span class="err">#</span> <span class="mh">0x8a00</span> <span class="o">-&gt;</span> <span class="n">port</span> <span class="mh">0x8a00</span>
+</span><span class='line'>  <span class="n">movw</span>    <span class="o">%</span><span class="n">ax</span><span class="p">,</span> <span class="o">%</span><span class="n">dx</span>
+</span><span class='line'>  <span class="n">outw</span>    <span class="o">%</span><span class="n">ax</span><span class="p">,</span> <span class="o">%</span><span class="n">dx</span>
+</span><span class='line'>  <span class="n">movw</span>    <span class="err">$</span><span class="mh">0x8ae0</span><span class="p">,</span> <span class="o">%</span><span class="n">ax</span>            <span class="err">#</span> <span class="mh">0x8ae0</span> <span class="o">-&gt;</span> <span class="n">port</span> <span class="mh">0x8a00</span>
+</span><span class='line'>  <span class="n">outw</span>    <span class="o">%</span><span class="n">ax</span><span class="p">,</span> <span class="o">%</span><span class="n">dx</span>
+</span><span class='line'><span class="nl">spin:</span>
+</span><span class='line'>  <span class="n">jmp</span>     <span class="n">spin</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp"># Bootstrap GDT</span>
+</span><span class='line'><span class="p">.</span><span class="n">p2align</span> <span class="mi">2</span>                                <span class="err">#</span> <span class="n">force</span> <span class="mi">4</span> <span class="n">byte</span> <span class="n">alignment</span>
+</span><span class='line'><span class="nl">gdt:</span>
+</span><span class='line'>  <span class="n">SEG_NULLASM</span>                             <span class="err">#</span> <span class="n">null</span> <span class="n">seg</span>
+</span><span class='line'>  <span class="n">SEG_ASM</span><span class="p">(</span><span class="n">STA_X</span><span class="o">|</span><span class="n">STA_R</span><span class="p">,</span> <span class="mh">0x0</span><span class="p">,</span> <span class="mh">0xffffffff</span><span class="p">)</span>   <span class="err">#</span> <span class="n">code</span> <span class="n">seg</span>
+</span><span class='line'>  <span class="n">SEG_ASM</span><span class="p">(</span><span class="n">STA_W</span><span class="p">,</span> <span class="mh">0x0</span><span class="p">,</span> <span class="mh">0xffffffff</span><span class="p">)</span>         <span class="err">#</span> <span class="n">data</span> <span class="n">seg</span>
+</span><span class='line'>
+</span><span class='line'><span class="nl">gdtdesc:</span>
+</span><span class='line'>  <span class="p">.</span><span class="n">word</span>   <span class="p">(</span><span class="n">gdtdesc</span> <span class="o">-</span> <span class="n">gdt</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>             <span class="err">#</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">gdt</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+</span><span class='line'>  <span class="p">.</span><span class="kt">long</span>   <span class="n">gdt</span>                             <span class="err">#</span> <span class="n">address</span> <span class="n">gdt</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
 
 <figure class='code'><figcaption><span>entry.S</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -139,12 +318,37 @@
 <p>可见，启动的第一件事情，是要enable 4M page。其他包括：</p>
 
 <ul>
-<li>enable 4M pages. PSE means page-size extensions. 这样，就可以通过设置一个</li>
+<li>enable 4M pages. PSE means page-size extensions. 这样，就可以通过设置一个page来</li>
 <li>set page directory</li>
 <li>turn on paging</li>
 <li>setup up stack pointer</li>
 <li>jump to main()</li>
 </ul>
+
+
+<figure class='code'><figcaption><span>main.c</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="c1">// Boot page table used in entry.S and entryother.S.</span>
+</span><span class='line'><span class="c1">// Page directories (and page tables), must start on a page boundary,</span>
+</span><span class='line'><span class="c1">// hence the &quot;__aligned__&quot; attribute.  </span>
+</span><span class='line'><span class="c1">// Use PTE_PS in page directory entry to enable 4Mbyte pages.</span>
+</span><span class='line'><span class="n">__attribute__</span><span class="p">((</span><span class="n">__aligned__</span><span class="p">(</span><span class="n">PGSIZE</span><span class="p">)))</span>
+</span><span class='line'><span class="n">pde_t</span> <span class="n">entrypgdir</span><span class="p">[</span><span class="n">NPDENTRIES</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>  <span class="c1">// Map VA&#39;s [0, 4MB) to PA&#39;s [0, 4MB)</span>
+</span><span class='line'>  <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">|</span> <span class="n">PTE_P</span> <span class="o">|</span> <span class="n">PTE_W</span> <span class="o">|</span> <span class="n">PTE_PS</span><span class="p">,</span>
+</span><span class='line'>  <span class="c1">// Map VA&#39;s [KERNBASE, KERNBASE+4MB) to PA&#39;s [0, 4MB)</span>
+</span><span class='line'>  <span class="p">[</span><span class="n">KERNBASE</span><span class="o">&gt;&gt;</span><span class="n">PDXSHIFT</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">|</span> <span class="n">PTE_P</span> <span class="o">|</span> <span class="n">PTE_W</span> <span class="o">|</span> <span class="n">PTE_PS</span><span class="p">,</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>其中，.comm会告诉ld为stack分配一块内存。</p>
